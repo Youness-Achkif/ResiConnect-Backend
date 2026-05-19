@@ -3,6 +3,10 @@ const jwt = require('jsonwebtoken');
 const db = require('../db');
 
 const register = async (req, res) => {
+  if (req.user.role !== 'gestionnaire') {
+    return res.status(403).json({ message: 'Accès réservé au gestionnaire.' });
+  }
+
   const { nom, email, mot_de_passe, role } = req.body;
 
   if (!nom || !email || !mot_de_passe || !role) {

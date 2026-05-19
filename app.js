@@ -7,6 +7,8 @@ const paiementRoutes = require('./routes/paiementRoutes');
 const residentRoutes = require('./routes/residentRoutes');
 const appartementRoutes = require('./routes/appartementRoutes');
 const problemeRoutes = require('./routes/problemeRoutes');
+const messageRoutes = require('./routes/messageRoutes');
+const annonceRoutes = require('./routes/annonceRoutes');
 
 const app = express();
 
@@ -34,11 +36,11 @@ app.use('/api/paiements', paiementRoutes);
 app.use('/api/residents', residentRoutes);
 app.use('/api/appartements', appartementRoutes);
 app.use('/api/problemes', problemeRoutes);
+app.use('/api/messages', messageRoutes);
+app.use('/api/annonces', annonceRoutes);
 
 // Routes à brancher au fur et à mesure
 // app.use('/api/users', require('./routes/userRoutes'));
-// app.use('/api/messages', require('./routes/messageRoutes'));
-// app.use('/api/annonces', require('./routes/annonceRoutes'));
 
 app.get('/', (req, res) => {
   res.json({ message: 'ResiConnect API is running.' });

@@ -36,7 +36,7 @@ app.use('/api/auth', authRoutes);
 // app.use('/api/annonces', require('./routes/annonceRoutes'));
 
 app.get('/', (req, res) => {
-  res.json({ message: 'ResiConnect API is running' });
+  res.json({ message: 'ResiConnect API is running.' });
 });
 
 const PORT = process.env.PORT || 5000;

@@ -6,6 +6,7 @@ const authRoutes = require('./routes/authRoutes');
 const paiementRoutes = require('./routes/paiementRoutes');
 const residentRoutes = require('./routes/residentRoutes');
 const appartementRoutes = require('./routes/appartementRoutes');
+const problemeRoutes = require('./routes/problemeRoutes');
 
 const app = express();
 
@@ -32,10 +33,10 @@ app.use('/api/auth', authRoutes);
 app.use('/api/paiements', paiementRoutes);
 app.use('/api/residents', residentRoutes);
 app.use('/api/appartements', appartementRoutes);
+app.use('/api/problemes', problemeRoutes);
 
 // Routes à brancher au fur et à mesure
 // app.use('/api/users', require('./routes/userRoutes'));
-// app.use('/api/problemes', require('./routes/problemeRoutes'));
 // app.use('/api/messages', require('./routes/messageRoutes'));
 // app.use('/api/annonces', require('./routes/annonceRoutes'));
 

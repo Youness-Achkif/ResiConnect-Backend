@@ -1,6 +1,6 @@
 const db = require('../db');
 
-const STATUTS_VALIDES = ['en_attente', 'valide', 'refuse'];
+const STATUTS_VALIDES = ['en attente', 'payé', 'refusé'];
 
 const getPaiements = async (req, res) => {
   try {

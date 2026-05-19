@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS paiements (
     user_id        INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     montant        NUMERIC(10, 2) NOT NULL,
     date_paiement  DATE NOT NULL,
-    statut         VARCHAR(20) NOT NULL CHECK (statut IN ('en_attente', 'valide', 'refuse')),
+    statut         VARCHAR(20) NOT NULL CHECK (statut IN ('en attente', 'payé', 'refusé')),
     fichier_url    TEXT,
     created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

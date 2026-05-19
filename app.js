@@ -3,6 +3,7 @@ const cors = require('cors');
 require('dotenv').config();
 
 const authRoutes = require('./routes/authRoutes');
+const paiementRoutes = require('./routes/paiementRoutes');
 
 const app = express();
 
@@ -26,11 +27,11 @@ app.use(cors({
 app.use(express.json());
 
 app.use('/api/auth', authRoutes);
+app.use('/api/paiements', paiementRoutes);
 
 // Routes à brancher au fur et à mesure
 // app.use('/api/users', require('./routes/userRoutes'));
 // app.use('/api/appartements', require('./routes/appartementRoutes'));
-// app.use('/api/paiements', require('./routes/paiementRoutes'));
 // app.use('/api/problemes', require('./routes/problemeRoutes'));
 // app.use('/api/messages', require('./routes/messageRoutes'));
 // app.use('/api/annonces', require('./routes/annonceRoutes'));

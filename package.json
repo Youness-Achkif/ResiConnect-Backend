@@ -1,0 +1,31 @@
+{
+  "name": "resiconnect-backend",
+  "version": "1.0.0",
+  "description": "Backend API for ResiConnect - Student residence management platform",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Youness-Achkif/Projet-Integrateur-ResiConnect-Backend.git"
+  },
+  "keywords": [],
+  "author": "Youness Achkif",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Youness-Achkif/Projet-Integrateur-ResiConnect-Backend/issues"
+  },
+  "homepage": "https://github.com/Youness-Achkif/Projet-Integrateur-ResiConnect-Backend#readme",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "pg": "^8.20.0"
+  }
+}

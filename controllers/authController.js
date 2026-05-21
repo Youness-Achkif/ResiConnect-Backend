@@ -78,4 +78,30 @@ const login = async (req, res) => {
   }
 };
 
-module.exports = { register, login };
+const supprimerUser = async (req, res) => {
+  if (req.user.role !== 'gestionnaire') {
+    return res.status(403).json({ message: 'Accès réservé au gestionnaire.' });
+  }
+
+  if (Number(req.params.id) === req.user.id) {
+    return res.status(400).json({ message: 'Vous ne pouvez pas supprimer votre propre compte.' });
+  }
+
+  try {
+    const result = await db.query(
+      'DELETE FROM users WHERE id = $1 RETURNING id, nom, email, role',
+      [req.params.id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Utilisateur introuvable.' });
+    }
+
+    res.json({ message: 'Utilisateur supprimé.', user: result.rows[0] });
+  } catch (err) {
+    console.error('supprimerUser error:', err);
+    res.status(500).json({ message: 'Erreur serveur.' });
+  }
+};
+
+module.exports = { register, login, supprimerUser };

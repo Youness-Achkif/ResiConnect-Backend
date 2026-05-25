@@ -74,20 +74,29 @@ const modifierPaiement = async (req, res) => {
   }
 
   const { id } = req.params;
-  const { statut } = req.body;
+  const { statut, justificatif_url } = req.body;
 
-  if (!statut) {
-    return res.status(400).json({ message: 'Le champ statut est obligatoire.' });
+  if (!statut && justificatif_url === undefined) {
+    return res.status(400).json({ message: 'Au moins un champ (statut ou justificatif_url) est requis.' });
   }
 
-  if (!STATUTS_VALIDES.includes(statut)) {
+  if (statut && !STATUTS_VALIDES.includes(statut)) {
     return res.status(400).json({ message: `Statut invalide. Valeurs acceptées : ${STATUTS_VALIDES.join(', ')}.` });
   }
 
   try {
+    const current = await db.query('SELECT * FROM paiements WHERE id = $1', [id]);
+
+    if (current.rows.length === 0) {
+      return res.status(404).json({ message: 'Paiement introuvable.' });
+    }
+
+    const nouvStatut = statut || current.rows[0].statut;
+    const nouvJustificatif = justificatif_url !== undefined ? justificatif_url : current.rows[0].justificatif_url;
+
     const result = await db.query(
-      `UPDATE paiements SET statut = $1 WHERE id = $2 RETURNING *`,
-      [statut, id]
+      `UPDATE paiements SET statut = $1, justificatif_url = $2 WHERE id = $3 RETURNING *`,
+      [nouvStatut, nouvJustificatif, id]
     );
 
     if (result.rows.length === 0) {

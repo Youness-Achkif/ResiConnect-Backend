@@ -35,7 +35,7 @@ const signalerProbleme = async (req, res) => {
     return res.status(403).json({ message: 'Accès réservé aux résidents.' });
   }
 
-  const { titre, description } = req.body;
+  const { titre, description, photo_url } = req.body;
 
   if (!titre || !description) {
     return res.status(400).json({ message: 'Champs obligatoires : titre, description.' });
@@ -43,10 +43,10 @@ const signalerProbleme = async (req, res) => {
 
   try {
     const result = await db.query(
-      `INSERT INTO problemes (user_id, titre, description, statut, priorite)
-       VALUES ($1, $2, $3, 'ouvert', 'normale')
+      `INSERT INTO problemes (user_id, titre, description, statut, priorite, photo_url)
+       VALUES ($1, $2, $3, 'ouvert', 'normale', $4)
        RETURNING *`,
-      [req.user.id, titre, description]
+      [req.user.id, titre, description, photo_url || null]
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {
@@ -60,10 +60,10 @@ const modifierProbleme = async (req, res) => {
     return res.status(403).json({ message: 'Accès réservé au gestionnaire.' });
   }
 
-  const { statut, priorite } = req.body;
+  const { statut, priorite, photo_url } = req.body;
 
-  if (!statut && !priorite) {
-    return res.status(400).json({ message: 'Au moins un champ (statut ou priorite) est requis.' });
+  if (!statut && !priorite && photo_url === undefined) {
+    return res.status(400).json({ message: 'Au moins un champ (statut, priorite ou photo_url) est requis.' });
   }
 
   if (statut && !STATUTS_VALIDES.includes(statut)) {
@@ -86,10 +86,11 @@ const modifierProbleme = async (req, res) => {
 
     const nouvStatut = statut || current.rows[0].statut;
     const nouvPriorite = priorite || current.rows[0].priorite;
+    const nouvPhotoUrl = photo_url !== undefined ? photo_url : current.rows[0].photo_url;
 
     const result = await db.query(
-      `UPDATE problemes SET statut = $1, priorite = $2 WHERE id = $3 RETURNING *`,
-      [nouvStatut, nouvPriorite, req.params.id]
+      `UPDATE problemes SET statut = $1, priorite = $2, photo_url = $3 WHERE id = $4 RETURNING *`,
+      [nouvStatut, nouvPriorite, nouvPhotoUrl, req.params.id]
     );
 
     res.json(result.rows[0]);

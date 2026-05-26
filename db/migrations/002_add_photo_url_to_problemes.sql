@@ -1,0 +1,1 @@
+ALTER TABLE problemes ADD COLUMN IF NOT EXISTS photo_url TEXT;

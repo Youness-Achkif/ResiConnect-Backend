@@ -56,12 +56,37 @@ const signalerProbleme = async (req, res) => {
 };
 
 const modifierProbleme = async (req, res) => {
-  if (req.user.role !== 'gestionnaire') {
-    return res.status(403).json({ message: 'Accès réservé au gestionnaire.' });
-  }
-
+  const { role, id: userId } = req.user;
   const { statut, priorite, photo_url } = req.body;
 
+  if (role !== 'gestionnaire' && role !== 'resident') {
+    return res.status(403).json({ message: 'Accès non autorisé.' });
+  }
+
+  if (role === 'resident') {
+    if (photo_url === undefined) {
+      return res.status(400).json({ message: 'Les résidents peuvent uniquement modifier photo_url.' });
+    }
+    try {
+      const current = await db.query('SELECT * FROM problemes WHERE id = $1', [req.params.id]);
+      if (current.rows.length === 0) {
+        return res.status(404).json({ message: 'Problème introuvable.' });
+      }
+      if (current.rows[0].user_id !== userId) {
+        return res.status(403).json({ message: 'Vous ne pouvez modifier que vos propres problèmes.' });
+      }
+      const result = await db.query(
+        `UPDATE problemes SET photo_url = $1 WHERE id = $2 RETURNING *`,
+        [photo_url, req.params.id]
+      );
+      return res.json(result.rows[0]);
+    } catch (err) {
+      console.error('modifierProbleme error:', err);
+      return res.status(500).json({ message: 'Erreur serveur.' });
+    }
+  }
+
+  // gestionnaire
   if (!statut && !priorite && photo_url === undefined) {
     return res.status(400).json({ message: 'Au moins un champ (statut, priorite ou photo_url) est requis.' });
   }
@@ -75,10 +100,7 @@ const modifierProbleme = async (req, res) => {
   }
 
   try {
-    const current = await db.query(
-      `SELECT * FROM problemes WHERE id = $1`,
-      [req.params.id]
-    );
+    const current = await db.query('SELECT * FROM problemes WHERE id = $1', [req.params.id]);
 
     if (current.rows.length === 0) {
       return res.status(404).json({ message: 'Problème introuvable.' });

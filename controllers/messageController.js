@@ -71,4 +71,31 @@ const marquerLu = async (req, res) => {
   }
 };
 
-module.exports = { getMessages, envoyerMessage, marquerLu };
+const supprimerConversation = async (req, res) => {
+  if (req.user.role !== 'gestionnaire') {
+    return res.status(403).json({ message: 'Accès réservé au gestionnaire.' });
+  }
+
+  const { userId } = req.params;
+
+  try {
+    const userCheck = await db.query('SELECT id FROM users WHERE id = $1', [userId]);
+    if (userCheck.rows.length === 0) {
+      return res.status(404).json({ message: 'Utilisateur introuvable.' });
+    }
+
+    const result = await db.query(
+      `DELETE FROM messages
+       WHERE (expediteur_id = $1 AND destinataire_id = $2)
+          OR (expediteur_id = $2 AND destinataire_id = $1)`,
+      [req.user.id, userId]
+    );
+
+    res.json({ message: 'Conversation supprimée.', count: result.rowCount });
+  } catch (err) {
+    console.error('supprimerConversation error:', err);
+    res.status(500).json({ message: 'Erreur serveur.' });
+  }
+};
+
+module.exports = { getMessages, envoyerMessage, marquerLu, supprimerConversation };

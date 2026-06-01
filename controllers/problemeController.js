@@ -62,15 +62,18 @@ const signalerProbleme = async (req, res) => {
 
 const modifierProbleme = async (req, res) => {
   const { role, id: userId } = req.user;
-  const { statut, priorite, photo_url } = req.body;
+  const { statut, priorite, photo_url, titre, description } = req.body;
 
   if (role !== 'gestionnaire' && role !== 'resident') {
     return res.status(403).json({ message: 'Accès non autorisé.' });
   }
 
   if (role === 'resident') {
-    if (photo_url === undefined) {
-      return res.status(400).json({ message: 'Les résidents peuvent uniquement modifier photo_url.' });
+    if (titre === undefined && description === undefined && priorite === undefined && photo_url === undefined) {
+      return res.status(400).json({ message: 'Au moins un champ modifiable est requis : titre, description, priorite, photo_url.' });
+    }
+    if (priorite && !PRIORITES_VALIDES.includes(priorite)) {
+      return res.status(400).json({ message: `Priorité invalide. Valeurs acceptées : ${PRIORITES_VALIDES.join(', ')}.` });
     }
     try {
       const current = await db.query('SELECT * FROM problemes WHERE id = $1', [req.params.id]);
@@ -80,9 +83,16 @@ const modifierProbleme = async (req, res) => {
       if (current.rows[0].user_id !== userId) {
         return res.status(403).json({ message: 'Vous ne pouvez modifier que vos propres problèmes.' });
       }
+      const row = current.rows[0];
       const result = await db.query(
-        `UPDATE problemes SET photo_url = $1 WHERE id = $2 RETURNING *`,
-        [photo_url, req.params.id]
+        `UPDATE problemes SET titre = $1, description = $2, priorite = $3, photo_url = $4 WHERE id = $5 RETURNING *`,
+        [
+          titre !== undefined ? titre : row.titre,
+          description !== undefined ? description : row.description,
+          priorite !== undefined ? priorite : row.priorite,
+          photo_url !== undefined ? photo_url : row.photo_url,
+          req.params.id,
+        ]
       );
       return res.json(result.rows[0]);
     } catch (err) {

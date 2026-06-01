@@ -35,18 +35,23 @@ const signalerProbleme = async (req, res) => {
     return res.status(403).json({ message: 'Accès réservé aux résidents.' });
   }
 
-  const { titre, description, photo_url } = req.body;
+  const { titre, description, photo_url, priorite } = req.body;
 
   if (!titre || !description) {
     return res.status(400).json({ message: 'Champs obligatoires : titre, description.' });
   }
 
+  const prioriteFinale = priorite || 'normale';
+  if (!PRIORITES_VALIDES.includes(prioriteFinale)) {
+    return res.status(400).json({ message: `Priorité invalide. Valeurs acceptées : ${PRIORITES_VALIDES.join(', ')}.` });
+  }
+
   try {
     const result = await db.query(
       `INSERT INTO problemes (user_id, titre, description, statut, priorite, photo_url)
-       VALUES ($1, $2, $3, 'ouvert', 'normale', $4)
+       VALUES ($1, $2, $3, 'ouvert', $4, $5)
        RETURNING *`,
-      [req.user.id, titre, description, photo_url || null]
+      [req.user.id, titre, description, prioriteFinale, photo_url || null]
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {

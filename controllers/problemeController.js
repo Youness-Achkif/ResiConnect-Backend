@@ -101,21 +101,26 @@ const modifierProbleme = async (req, res) => {
 };
 
 const supprimerProbleme = async (req, res) => {
-  if (req.user.role !== 'gestionnaire') {
-    return res.status(403).json({ message: 'Accès réservé au gestionnaire.' });
-  }
-
   try {
-    const result = await db.query(
-      `DELETE FROM problemes WHERE id = $1 RETURNING id`,
-      [req.params.id]
-    );
+    const current = await db.query('SELECT id, user_id FROM problemes WHERE id = $1', [req.params.id]);
 
-    if (result.rows.length === 0) {
+    if (current.rows.length === 0) {
       return res.status(404).json({ message: 'Problème introuvable.' });
     }
 
-    res.json({ message: 'Problème supprimé.', id: result.rows[0].id });
+    const probleme = current.rows[0];
+
+    if (req.user.role === 'resident' && probleme.user_id !== req.user.id) {
+      return res.status(403).json({ message: 'Vous ne pouvez supprimer que vos propres problèmes.' });
+    }
+
+    if (req.user.role !== 'gestionnaire' && req.user.role !== 'resident') {
+      return res.status(403).json({ message: 'Accès non autorisé.' });
+    }
+
+    await db.query('DELETE FROM problemes WHERE id = $1', [req.params.id]);
+
+    res.json({ message: 'Problème supprimé.', id: probleme.id });
   } catch (err) {
     console.error('supprimerProbleme error:', err);
     res.status(500).json({ message: 'Erreur serveur.' });

@@ -10,7 +10,7 @@ const getTousResidents = async (req, res) => {
 
   try {
     const result = await db.query(
-      `SELECT u.id, u.nom, u.email, u.created_at,
+      `SELECT u.id, u.nom, u.email, u.is_active, u.residence_id, u.created_at,
               a.id AS appartement_id, a.numero, a.etage
        FROM users u
        LEFT JOIN appartements a ON a.user_id = u.id

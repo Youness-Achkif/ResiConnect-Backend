@@ -219,6 +219,26 @@ const setPassword = async (req, res) => {
   }
 };
 
+const getMe = async (req, res) => {
+  try {
+    const result = await db.query(
+      `SELECT u.id, u.nom, u.email, u.role,
+              r.nom AS residence_nom, r.adresse AS residence_adresse
+       FROM users u
+       LEFT JOIN residences r ON r.id = u.residence_id
+       WHERE u.id = $1`,
+      [req.user.id]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Utilisateur introuvable.' });
+    }
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error('getMe error:', err);
+    res.status(500).json({ message: 'Erreur serveur.' });
+  }
+};
+
 module.exports = {
   register,
   login,
@@ -227,4 +247,5 @@ module.exports = {
   inviterResident,
   activateToken,
   setPassword,
+  getMe,
 };

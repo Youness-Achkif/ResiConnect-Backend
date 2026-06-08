@@ -19,11 +19,7 @@ const getPaiements = async (req, res) => {
     }
 
     const result = await db.query(
-      `SELECT p.*, u.nom AS resident_nom, u.email AS resident_email
-       FROM paiements p
-       JOIN users u ON u.id = p.user_id
-       WHERE p.user_id = $1
-       ORDER BY p.created_at DESC`,
+      `SELECT * FROM paiements WHERE user_id = $1 ORDER BY date_paiement DESC`,
       [req.user.id]
     );
     res.json(result.rows);

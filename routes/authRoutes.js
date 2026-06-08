@@ -8,6 +8,7 @@ const {
   inviterResident,
   activateToken,
   setPassword,
+  getMe,
 } = require('../controllers/authController');
 const { authMiddleware, isGestionnaire, checkResidenceOwner } = require('../middlewares/authMiddleware');
 
@@ -27,6 +28,8 @@ router.post('/set-password', setPassword);
 
 // AUTH-7 : gestionnaire par résidence (publique)
 router.get('/gestionnaire/:residenceId', getGestionnaireByResidence);
+
+router.get('/me', authMiddleware, getMe);
 
 // existant
 router.delete('/users/:id', authMiddleware, supprimerUser);

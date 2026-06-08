@@ -5,14 +5,18 @@ const getTousResidents = async (req, res) => {
     return res.status(403).json({ message: 'Accès réservé au gestionnaire.' });
   }
 
+  const { residence_id } = req.query;
+  if (!residence_id) return res.json([]);
+
   try {
     const result = await db.query(
       `SELECT u.id, u.nom, u.email, u.created_at,
               a.id AS appartement_id, a.numero, a.etage
        FROM users u
        LEFT JOIN appartements a ON a.user_id = u.id
-       WHERE u.role = 'resident'
-       ORDER BY u.nom ASC`
+       WHERE u.role = 'resident' AND u.residence_id = $1
+       ORDER BY u.nom ASC`,
+      [residence_id]
     );
     res.json(result.rows);
   } catch (err) {

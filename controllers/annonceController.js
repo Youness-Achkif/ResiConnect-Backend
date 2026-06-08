@@ -1,12 +1,17 @@
 const db = require('../db');
 
 const getAnnonces = async (req, res) => {
+  const { residence_id } = req.query;
+  if (!residence_id) return res.json([]);
+
   try {
     const result = await db.query(
       `SELECT a.*, u.nom AS auteur_nom
        FROM annonces a
        JOIN users u ON u.id = a.auteur_id
-       ORDER BY a.date_creation DESC`
+       WHERE a.residence_id = $1
+       ORDER BY a.date_creation DESC`,
+      [residence_id]
     );
     res.json(result.rows);
   } catch (err) {
@@ -20,7 +25,7 @@ const creerAnnonce = async (req, res) => {
     return res.status(403).json({ message: 'Accès réservé au gestionnaire.' });
   }
 
-  const { titre, contenu } = req.body;
+  const { titre, contenu, residence_id } = req.body;
 
   if (!titre || !contenu) {
     return res.status(400).json({ message: 'Champs obligatoires : titre, contenu.' });
@@ -28,10 +33,10 @@ const creerAnnonce = async (req, res) => {
 
   try {
     const result = await db.query(
-      `INSERT INTO annonces (auteur_id, titre, contenu)
-       VALUES ($1, $2, $3)
+      `INSERT INTO annonces (auteur_id, titre, contenu, residence_id)
+       VALUES ($1, $2, $3, $4)
        RETURNING *`,
-      [req.user.id, titre, contenu]
+      [req.user.id, titre, contenu, residence_id || null]
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {

@@ -222,7 +222,7 @@ const setPassword = async (req, res) => {
 const getMe = async (req, res) => {
   try {
     const result = await db.query(
-      `SELECT u.id, u.nom, u.email, u.role,
+      `SELECT u.id, u.nom, u.email, u.role, u.residence_id,
               r.nom AS residence_nom, r.adresse AS residence_adresse
        FROM users u
        LEFT JOIN residences r ON r.id = u.residence_id

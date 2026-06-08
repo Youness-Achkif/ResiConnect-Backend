@@ -9,6 +9,7 @@ const appartementRoutes = require('./routes/appartementRoutes');
 const problemeRoutes = require('./routes/problemeRoutes');
 const messageRoutes = require('./routes/messageRoutes');
 const annonceRoutes = require('./routes/annonceRoutes');
+const residencesRoutes = require('./routes/residences');
 
 const app = express();
 
@@ -32,6 +33,7 @@ app.use(cors({
 app.use(express.json());
 
 app.use('/api/auth', authRoutes);
+app.use('/api', residencesRoutes);
 app.use('/api/paiements', paiementRoutes);
 app.use('/api/residents', residentRoutes);
 app.use('/api/appartements', appartementRoutes);

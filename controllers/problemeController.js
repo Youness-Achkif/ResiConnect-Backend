@@ -20,7 +20,7 @@ const getProblemes = async (req, res) => {
     }
 
     const result = await db.query(
-      `SELECT * FROM problemes WHERE user_id = $1 ORDER BY date_creation DESC`,
+      'SELECT * FROM problemes WHERE user_id = $1',
       [req.user.id]
     );
     res.json(result.rows);

@@ -5,22 +5,20 @@ const { getMesResidences, creerResidence, modifierResidence, supprimerResidence 
 const { getBatiments, creerBatiment, supprimerBatiment } = require('../controllers/batimentsController');
 const { getAppartements, creerAppartement, assignerResident } = require('../controllers/appartementsController');
 
-router.use(authMiddleware, isGestionnaire);
-
 // Résidences
-router.get('/residences',      getMesResidences);
-router.post('/residences',     creerResidence);
-router.put('/residences/:id',  modifierResidence);
-router.delete('/residences/:id', supprimerResidence);
+router.get('/residences',        authMiddleware, isGestionnaire, getMesResidences);
+router.post('/residences',       authMiddleware, isGestionnaire, creerResidence);
+router.put('/residences/:id',    authMiddleware, isGestionnaire, modifierResidence);
+router.delete('/residences/:id', authMiddleware, isGestionnaire, supprimerResidence);
 
 // Bâtiments
-router.get('/residences/:residenceId/batiments',    getBatiments);
-router.post('/residences/:residenceId/batiments',   creerBatiment);
-router.delete('/batiments/:id',                     supprimerBatiment);
+router.get('/residences/:residenceId/batiments',    authMiddleware, isGestionnaire, getBatiments);
+router.post('/residences/:residenceId/batiments',   authMiddleware, isGestionnaire, creerBatiment);
+router.delete('/batiments/:id',                     authMiddleware, isGestionnaire, supprimerBatiment);
 
 // Appartements
-router.get('/residences/:residenceId/appartements',  getAppartements);
-router.post('/residences/:residenceId/appartements', creerAppartement);
-router.put('/appartements/:id',                      assignerResident);
+router.get('/residences/:residenceId/appartements',  authMiddleware, isGestionnaire, getAppartements);
+router.post('/residences/:residenceId/appartements', authMiddleware, isGestionnaire, creerAppartement);
+router.put('/appartements/:id',                      authMiddleware, isGestionnaire, assignerResident);
 
 module.exports = router;

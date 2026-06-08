@@ -18,13 +18,9 @@ const getAnnonces = async (req, res) => {
 
     // résident : annonces de sa propre résidence
     const result = await db.query(
-      `SELECT a.*, u.nom AS auteur_nom
-       FROM annonces a
-       JOIN users u ON u.id = a.auteur_id
-       WHERE a.residence_id = (
-         SELECT residence_id FROM users WHERE id = $1
-       )
-       ORDER BY a.date_creation DESC`,
+      `SELECT a.* FROM annonces a
+       JOIN users u ON u.residence_id = a.residence_id
+       WHERE u.id = $1`,
       [req.user.id]
     );
     res.json(result.rows);

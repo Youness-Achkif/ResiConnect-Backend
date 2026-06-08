@@ -6,11 +6,15 @@ const PRIORITES_VALIDES = ['haute', 'normale', 'basse'];
 const getProblemes = async (req, res) => {
   try {
     if (req.user.role === 'gestionnaire') {
+      const { residence_id } = req.query;
+      if (!residence_id) return res.json([]);
       const result = await db.query(
         `SELECT p.*, u.nom AS resident_nom, u.email AS resident_email
          FROM problemes p
          JOIN users u ON u.id = p.user_id
-         ORDER BY p.date_creation DESC`
+         WHERE u.residence_id = $1
+         ORDER BY p.date_creation DESC`,
+        [residence_id]
       );
       return res.json(result.rows);
     }

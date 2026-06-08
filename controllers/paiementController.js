@@ -5,11 +5,15 @@ const STATUTS_VALIDES = ['en attente', 'payé', 'refusé'];
 const getPaiements = async (req, res) => {
   try {
     if (req.user.role === 'gestionnaire') {
+      const { residence_id } = req.query;
+      if (!residence_id) return res.json([]);
       const result = await db.query(
         `SELECT p.*, u.nom AS resident_nom, u.email AS resident_email
          FROM paiements p
          JOIN users u ON u.id = p.user_id
-         ORDER BY p.created_at DESC`
+         WHERE u.residence_id = $1
+         ORDER BY p.created_at DESC`,
+        [residence_id]
       );
       return res.json(result.rows);
     }

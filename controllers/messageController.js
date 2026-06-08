@@ -2,6 +2,24 @@ const db = require('../db');
 
 const getMessages = async (req, res) => {
   try {
+    if (req.user.role === 'gestionnaire') {
+      const { residence_id } = req.query;
+      if (!residence_id) return res.json([]);
+      const result = await db.query(
+        `SELECT m.*,
+                e.nom AS expediteur_nom, e.email AS expediteur_email,
+                d.nom AS destinataire_nom, d.email AS destinataire_email
+         FROM messages m
+         JOIN users e ON e.id = m.expediteur_id
+         JOIN users d ON d.id = m.destinataire_id
+         WHERE (m.expediteur_id = $1 AND d.residence_id = $2)
+            OR (m.destinataire_id = $1 AND e.residence_id = $2)
+         ORDER BY m.date_envoi ASC`,
+        [req.user.id, residence_id]
+      );
+      return res.json(result.rows);
+    }
+
     const result = await db.query(
       `SELECT m.*,
               e.nom AS expediteur_nom, e.email AS expediteur_email,

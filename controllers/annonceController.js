@@ -1,17 +1,31 @@
 const db = require('../db');
 
 const getAnnonces = async (req, res) => {
-  const { residence_id } = req.query;
-  if (!residence_id) return res.json([]);
-
   try {
+    if (req.user.role === 'gestionnaire') {
+      const { residence_id } = req.query;
+      if (!residence_id) return res.json([]);
+      const result = await db.query(
+        `SELECT a.*, u.nom AS auteur_nom
+         FROM annonces a
+         JOIN users u ON u.id = a.auteur_id
+         WHERE a.residence_id = $1
+         ORDER BY a.date_creation DESC`,
+        [residence_id]
+      );
+      return res.json(result.rows);
+    }
+
+    // résident : annonces de sa propre résidence
     const result = await db.query(
       `SELECT a.*, u.nom AS auteur_nom
        FROM annonces a
        JOIN users u ON u.id = a.auteur_id
-       WHERE a.residence_id = $1
+       WHERE a.residence_id = (
+         SELECT residence_id FROM users WHERE id = $1
+       )
        ORDER BY a.date_creation DESC`,
-      [residence_id]
+      [req.user.id]
     );
     res.json(result.rows);
   } catch (err) {

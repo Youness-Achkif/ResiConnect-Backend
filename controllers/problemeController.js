@@ -20,11 +20,7 @@ const getProblemes = async (req, res) => {
     }
 
     const result = await db.query(
-      `SELECT p.*, u.nom AS resident_nom, u.email AS resident_email
-       FROM problemes p
-       JOIN users u ON u.id = p.user_id
-       WHERE p.user_id = $1
-       ORDER BY p.date_creation DESC`,
+      `SELECT * FROM problemes WHERE user_id = $1 ORDER BY date_creation DESC`,
       [req.user.id]
     );
     res.json(result.rows);

@@ -10,12 +10,10 @@ const getTousResidents = async (req, res) => {
 
   try {
     const result = await db.query(
-      `SELECT u.id, u.nom, u.email, u.is_active, u.residence_id, u.created_at,
-              a.id AS appartement_id, a.numero, a.etage
-       FROM users u
-       LEFT JOIN appartements a ON a.user_id = u.id
-       WHERE u.role = 'resident' AND u.residence_id = $1
-       ORDER BY u.nom ASC`,
+      `SELECT id, nom, email, is_active, residence_id
+       FROM users
+       WHERE role = 'resident' AND residence_id = $1
+       ORDER BY nom ASC`,
       [residence_id]
     );
     res.json(result.rows);

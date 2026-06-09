@@ -103,20 +103,35 @@ const supprimerResident = async (req, res) => {
     return res.status(403).json({ message: 'Accès réservé au gestionnaire.' });
   }
 
-  try {
-    const result = await db.query(
-      `DELETE FROM users WHERE id = $1 AND role = 'resident' RETURNING id`,
-      [req.params.id]
-    );
+  const { id } = req.params;
+  const client = await db.connect();
 
-    if (result.rows.length === 0) {
+  try {
+    await client.query('BEGIN');
+
+    const check = await client.query(
+      "SELECT id FROM users WHERE id = $1 AND role = 'resident'",
+      [id]
+    );
+    if (check.rows.length === 0) {
+      await client.query('ROLLBACK');
       return res.status(404).json({ message: 'Résident introuvable.' });
     }
 
-    res.json({ message: 'Résident supprimé.', id: result.rows[0].id });
+    await client.query('UPDATE appartements SET user_id = NULL WHERE user_id = $1', [id]);
+    await client.query('DELETE FROM messages WHERE expediteur_id = $1 OR destinataire_id = $1', [id]);
+    await client.query('DELETE FROM paiements WHERE user_id = $1', [id]);
+    await client.query('DELETE FROM problemes WHERE user_id = $1', [id]);
+    await client.query('DELETE FROM users WHERE id = $1', [id]);
+
+    await client.query('COMMIT');
+    res.json({ message: 'Résident supprimé.', id: Number(id) });
   } catch (err) {
+    await client.query('ROLLBACK');
     console.error('supprimerResident error:', err);
     res.status(500).json({ message: 'Erreur serveur.' });
+  } finally {
+    client.release();
   }
 };
 

@@ -3,7 +3,7 @@ const router = express.Router();
 const { authMiddleware, isGestionnaire } = require('../middlewares/authMiddleware');
 const { getMesResidences, creerResidence, modifierResidence, supprimerResidence } = require('../controllers/residencesController');
 const { getBatiments, creerBatiment, supprimerBatiment } = require('../controllers/batimentsController');
-const { getAppartements, creerAppartement, assignerResident } = require('../controllers/appartementsController');
+const { getAppartements, creerAppartement, assignerResident, supprimerAppartement } = require('../controllers/appartementsController');
 
 // Résidences
 router.get('/residences',        authMiddleware, isGestionnaire, getMesResidences);
@@ -20,5 +20,6 @@ router.delete('/batiments/:id',                     authMiddleware, isGestionnai
 router.get('/residences/:residenceId/appartements',  authMiddleware, isGestionnaire, getAppartements);
 router.post('/residences/:residenceId/appartements', authMiddleware, isGestionnaire, creerAppartement);
 router.put('/appartements/:id',                      authMiddleware, isGestionnaire, assignerResident);
+router.delete('/appartements/:id',                   authMiddleware, isGestionnaire, supprimerAppartement);
 
 module.exports = router;

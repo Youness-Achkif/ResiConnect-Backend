@@ -74,4 +74,21 @@ const assignerResident = async (req, res) => {
   }
 };
 
-module.exports = { getAppartements, creerAppartement, assignerResident };
+// APT-4
+const supprimerAppartement = async (req, res) => {
+  try {
+    const result = await db.query(
+      'DELETE FROM appartements WHERE id = $1 RETURNING id',
+      [req.params.id]
+    );
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: 'Appartement introuvable.' });
+    }
+    res.json({ message: 'Appartement supprimé.', id: result.rows[0].id });
+  } catch (err) {
+    console.error('supprimerAppartement error:', err);
+    res.status(500).json({ error: 'Erreur serveur.' });
+  }
+};
+
+module.exports = { getAppartements, creerAppartement, assignerResident, supprimerAppartement };

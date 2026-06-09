@@ -219,6 +219,36 @@ const setPassword = async (req, res) => {
   }
 };
 
+// B-2 : inscription résident en autonomie
+const registerResident = async (req, res) => {
+  const { nom, email, mot_de_passe } = req.body;
+
+  if (!nom || !email || !mot_de_passe) {
+    return res.status(400).json({ message: 'Tous les champs sont obligatoires.' });
+  }
+
+  try {
+    const existing = await db.query('SELECT id FROM users WHERE email = $1', [email]);
+    if (existing.rows.length > 0) {
+      return res.status(409).json({ message: 'Cet email est déjà utilisé.' });
+    }
+
+    const hash = await bcrypt.hash(mot_de_passe, 10);
+
+    const result = await db.query(
+      `INSERT INTO users (nom, email, mot_de_passe, role, is_active)
+       VALUES ($1, $2, $3, 'resident', TRUE)
+       RETURNING id, nom, email, role`,
+      [nom, email, hash]
+    );
+
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error('registerResident error:', err);
+    res.status(500).json({ message: 'Erreur serveur.' });
+  }
+};
+
 const getMe = async (req, res) => {
   try {
     const result = await db.query(
@@ -248,4 +278,5 @@ module.exports = {
   activateToken,
   setPassword,
   getMe,
+  registerResident,
 };

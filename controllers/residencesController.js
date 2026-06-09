@@ -33,14 +33,56 @@ const creerResidence = async (req, res) => {
   }
 
   try {
+    let code;
+    while (true) {
+      code = 'RC-' + Math.floor(1000 + Math.random() * 9000);
+      const exists = await db.query('SELECT id FROM residences WHERE code = $1', [code]);
+      if (exists.rows.length === 0) break;
+    }
+
     const result = await db.query(
-      `INSERT INTO residences (nom, adresse, gestionnaire_id)
-       VALUES ($1, $2, $3) RETURNING *`,
-      [nom, adresse || null, req.user.id]
+      `INSERT INTO residences (nom, adresse, gestionnaire_id, code)
+       VALUES ($1, $2, $3, $4) RETURNING *`,
+      [nom, adresse || null, req.user.id, code]
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {
     console.error('creerResidence error:', err);
+    res.status(500).json({ error: 'Erreur serveur.' });
+  }
+};
+
+// B-3
+const searchResidences = async (req, res) => {
+  const { q } = req.query;
+  if (!q) return res.json([]);
+
+  try {
+    let result;
+    if (q.toUpperCase().startsWith('RC-')) {
+      result = await db.query(
+        `SELECT r.id, r.nom, r.adresse, r.code,
+                COUNT(a.id) FILTER (WHERE a.user_id IS NULL) AS apparts_libres
+         FROM residences r
+         LEFT JOIN appartements a ON a.residence_id = r.id
+         WHERE UPPER(r.code) = UPPER($1)
+         GROUP BY r.id`,
+        [q]
+      );
+    } else {
+      result = await db.query(
+        `SELECT r.id, r.nom, r.adresse, r.code,
+                COUNT(a.id) FILTER (WHERE a.user_id IS NULL) AS apparts_libres
+         FROM residences r
+         LEFT JOIN appartements a ON a.residence_id = r.id
+         WHERE r.nom ILIKE '%' || $1 || '%'
+         GROUP BY r.id`,
+        [q]
+      );
+    }
+    res.json(result.rows);
+  } catch (err) {
+    console.error('searchResidences error:', err);
     res.status(500).json({ error: 'Erreur serveur.' });
   }
 };
@@ -97,4 +139,4 @@ const supprimerResidence = async (req, res) => {
   }
 };
 
-module.exports = { getMesResidences, creerResidence, modifierResidence, supprimerResidence };
+module.exports = { getMesResidences, creerResidence, modifierResidence, supprimerResidence, searchResidences };

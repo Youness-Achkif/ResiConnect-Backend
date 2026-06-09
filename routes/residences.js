@@ -4,6 +4,10 @@ const { authMiddleware, isGestionnaire } = require('../middlewares/authMiddlewar
 const { getMesResidences, creerResidence, modifierResidence, supprimerResidence } = require('../controllers/residencesController');
 const { getBatiments, creerBatiment, supprimerBatiment } = require('../controllers/batimentsController');
 const { getAppartements, creerAppartement, assignerResident, supprimerAppartement } = require('../controllers/appartementsController');
+const { searchResidences } = require('../controllers/residencesController');
+
+// Recherche publique — doit être avant toute route avec :id
+router.get('/residences/search', searchResidences);
 
 // Résidences
 router.get('/residences',        authMiddleware, isGestionnaire, getMesResidences);

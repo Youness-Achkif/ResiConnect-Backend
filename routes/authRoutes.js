@@ -9,11 +9,13 @@ const {
   activateToken,
   setPassword,
   getMe,
+  registerResident,
 } = require('../controllers/authController');
 const { authMiddleware, isGestionnaire, checkResidenceOwner } = require('../middlewares/authMiddleware');
 
 // AUTH-1 : public
 router.post('/register', register);
+router.post('/register-resident', registerResident);
 
 router.post('/login', login);
 

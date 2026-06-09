@@ -10,6 +10,7 @@ const problemeRoutes = require('./routes/problemeRoutes');
 const messageRoutes = require('./routes/messageRoutes');
 const annonceRoutes = require('./routes/annonceRoutes');
 const residencesRoutes = require('./routes/residences');
+const joinRequestsRoutes = require('./routes/joinRequests');
 
 const app = express();
 
@@ -40,6 +41,7 @@ app.use('/api/appartements', appartementRoutes);
 app.use('/api/problemes', problemeRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/annonces', annonceRoutes);
+app.use('/api', joinRequestsRoutes);
 
 // Routes à brancher au fur et à mesure
 // app.use('/api/users', require('./routes/userRoutes'));

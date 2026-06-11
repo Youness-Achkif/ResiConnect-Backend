@@ -140,7 +140,7 @@ const inviterResident = async (req, res) => {
   try {
     const existing = await db.query('SELECT id FROM users WHERE email = $1', [email]);
     if (existing.rows.length > 0) {
-      return res.status(409).json({ error: 'Cet email est déjà utilisé.' });
+      return res.status(400).json({ error: 'Cette adresse email est déjà utilisée par un autre compte.' });
     }
 
     const token = crypto.randomBytes(32).toString('hex');

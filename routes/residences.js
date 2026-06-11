@@ -21,7 +21,7 @@ router.post('/residences/:residenceId/batiments',   authMiddleware, isGestionnai
 router.delete('/batiments/:id',                     authMiddleware, isGestionnaire, supprimerBatiment);
 
 // Appartements
-router.get('/residences/:residenceId/appartements',  authMiddleware, isGestionnaire, getAppartements);
+router.get('/residences/:residenceId/appartements',  authMiddleware, getAppartements);
 router.post('/residences/:residenceId/appartements', authMiddleware, isGestionnaire, creerAppartement);
 router.put('/appartements/:id',                      authMiddleware, isGestionnaire, assignerResident);
 router.delete('/appartements/:id',                   authMiddleware, isGestionnaire, supprimerAppartement);

@@ -141,4 +141,52 @@ const refuserDemande = async (req, res) => {
   }
 };
 
-module.exports = { envoyerDemande, getDemandesEnAttente, accepterDemande, refuserDemande };
+// ROUTE 1 : résident consulte sa dernière demande
+const getMaDemandeRecente = async (req, res) => {
+  try {
+    const result = await db.query(
+      `SELECT jr.id, jr.statut, jr.message, jr.created_at,
+              r.nom AS residence_nom, r.adresse AS residence_adresse,
+              a.numero AS appartement_numero
+       FROM join_requests jr
+       JOIN residences r ON r.id = jr.residence_id
+       LEFT JOIN appartements a ON a.id = jr.appartement_id
+       WHERE jr.resident_id = $1
+       ORDER BY jr.created_at DESC
+       LIMIT 1`,
+      [req.user.id]
+    );
+    res.json(result.rows[0] || null);
+  } catch (err) {
+    console.error('getMaDemandeRecente error:', err);
+    res.status(500).json({ message: 'Erreur serveur.' });
+  }
+};
+
+// ROUTE 2 : résident annule sa demande en attente
+const annulerDemande = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const check = await db.query(
+      'SELECT id, statut FROM join_requests WHERE id = $1 AND resident_id = $2',
+      [id, req.user.id]
+    );
+
+    if (check.rows.length === 0) {
+      return res.status(404).json({ message: 'Demande introuvable.' });
+    }
+
+    if (check.rows[0].statut !== 'en attente') {
+      return res.status(400).json({ message: 'Impossible d\'annuler une demande déjà traitée.' });
+    }
+
+    await db.query('DELETE FROM join_requests WHERE id = $1', [id]);
+    res.json({ message: 'Demande annulée' });
+  } catch (err) {
+    console.error('annulerDemande error:', err);
+    res.status(500).json({ message: 'Erreur serveur.' });
+  }
+};
+
+module.exports = { envoyerDemande, getDemandesEnAttente, accepterDemande, refuserDemande, getMaDemandeRecente, annulerDemande };

@@ -139,4 +139,31 @@ const supprimerResidence = async (req, res) => {
   }
 };
 
-module.exports = { getMesResidences, creerResidence, modifierResidence, supprimerResidence, searchResidences };
+// B-7 : gestionnaire définit le PIN gardien
+const definirPin = async (req, res) => {
+  const { pin } = req.body;
+
+  if (!pin || !/^\d{4,6}$/.test(pin)) {
+    return res.status(400).json({ error: 'Le PIN doit contenir entre 4 et 6 chiffres.' });
+  }
+
+  try {
+    const result = await db.query(
+      `UPDATE residences SET pin_gardien = $1
+       WHERE id = $2 AND gestionnaire_id = $3
+       RETURNING id`,
+      [pin, req.params.id, req.user.id]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(403).json({ error: 'Accès refusé.' });
+    }
+
+    res.json({ message: 'PIN mis à jour' });
+  } catch (err) {
+    console.error('definirPin error:', err);
+    res.status(500).json({ error: 'Erreur serveur.' });
+  }
+};
+
+module.exports = { getMesResidences, creerResidence, modifierResidence, supprimerResidence, searchResidences, definirPin };

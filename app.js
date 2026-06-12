@@ -42,6 +42,9 @@ app.use('/api/problemes', problemeRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/annonces', annonceRoutes);
 app.use('/api', joinRequestsRoutes);
+app.use('/api', require('./routes/visiteurs'));
+app.use('/api', require('./routes/scan'));
+app.use('/api', require('./routes/historique'));
 
 // Routes à brancher au fur et à mesure
 // app.use('/api/users', require('./routes/userRoutes'));

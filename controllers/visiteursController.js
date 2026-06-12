@@ -54,7 +54,9 @@ const getMesVisiteurs = async (req, res) => {
   try {
     const result = await db.query(
       `SELECT id, nom, type, token, date_validite,
-              max_utilisations, utilisations, statut, created_at
+              max_utilisations,
+              utilisations AS nb_utilisations,
+              statut, created_at
        FROM visiteurs
        WHERE resident_id = $1
        ORDER BY created_at DESC`,

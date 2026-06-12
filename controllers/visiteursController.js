@@ -26,13 +26,16 @@ const creerVisiteur = async (req, res) => {
       ? (type || '').toLowerCase()
       : 'autre';
 
+    const maxVal = parseInt(max_utilisations, 10);
+    const maxInsert = (!isNaN(maxVal) && maxVal > 0) ? maxVal : 1;
+
     const token = crypto.randomBytes(32).toString('hex');
 
     const result = await db.query(
       `INSERT INTO visiteurs (resident_id, residence_id, nom, type, token, date_validite, max_utilisations)
        VALUES ($1, $2, $3, $4, $5, $6, $7)
        RETURNING id, token, nom, type, date_validite, max_utilisations`,
-      [req.user.id, residence_id, nom, typeNormalise, token, date_validite, max_utilisations || 1]
+      [req.user.id, residence_id, nom, typeNormalise, token, date_validite, maxInsert]
     );
 
     res.status(201).json(result.rows[0]);

@@ -55,8 +55,8 @@ const verifierQR = async (req, res) => {
     if (v.utilisations >= v.max_utilisations) {
       await db.query(
         `INSERT INTO historique_acces (visiteur_id, residence_id, statut, raison_refus)
-         VALUES ($1, $2, 'refusé', 'Nombre maximum d\'utilisations atteint')`,
-        [v.id, v.residence_id]
+         VALUES ($1, $2, 'refusé', $3)`,
+        [v.id, v.residence_id, "Nombre maximum d'utilisations atteint"]
       );
       return res.status(400).json({ autorise: false, raison: 'QR Code déjà utilisé' });
     }
